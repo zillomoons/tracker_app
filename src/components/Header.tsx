@@ -12,7 +12,7 @@ export const Header = () => {
           <button
             type="button"
             onClick={sessionData ? () => void signOut() : () => void signIn()}
-            className="mr-2 rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-medium text-white "
+            className="mr-2 rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-medium text-white"
           >
             {sessionData ? "Sign out" : "Sign in"}
           </button>
