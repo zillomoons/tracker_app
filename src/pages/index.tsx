@@ -1,12 +1,13 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import { Header } from "~/components/Header";
 import { useState } from "react";
 import { type Habit } from "@prisma/client";
+import { generateDate } from "~/utils/calendar";
 
 const Home: NextPage = () => {
   return (
@@ -75,31 +76,49 @@ export const Content: React.FC = () => {
           }}
         />
       </div>
-      <div className="col-span-3"></div>
+      <div className="col-span-3">
+        <CalendarMonth />
+      </div>
     </div>
   );
 };
 
-// const AuthShowcase: React.FC = () => {
-//   const { data: sessionData } = useSession();
+export const CalendarMonth = () => {
+  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-//   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-//     undefined, // no input
-//     { enabled: sessionData?.user !== undefined }
-//   );
-
-//   return (
-//     <div className="flex flex-col items-center justify-center gap-4">
-//       <p className="text-center text-2xl text-white">
-//         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-//         {secretMessage && <span> - {secretMessage}</span>}
-//       </p>
-//       <button
-//         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-//         onClick={sessionData ? () => void signOut() : () => void signIn()}
-//       >
-//         {sessionData ? "Sign out" : "Sign in"}
-//       </button>
-//     </div>
-//   );
-// };
+  return (
+    <div className="mx-5 h-96 w-96">
+      <section className="calendar-month-header">
+        <div
+          id="selected-month"
+          className="calendar-month-selected-month"
+        ></div>
+        <section className="flex w-20 cursor-pointer items-center justify-between">
+          <span id="prev-month-selector">&lt;</span>
+          <span id="present-month-selector">Today</span>
+          <span id="next-month-selector">&gt;</span>
+        </section>
+      </section>
+      <ol
+        id="days-of-week"
+        className="grid grid-cols-7 pb-1 pt-3 text-sm text-gray-500"
+      >
+        {WEEKDAYS.map((day) => (
+          <li key={day} className="grid h-14 place-content-center text-sm">
+            {day}
+          </li>
+        ))}
+      </ol>
+      <ol id="calendar-days" className="grid h-full grid-cols-7">
+        {generateDate().map(({ date, currentMonth, isToday }, idx) => (
+          <li
+            key={idx}
+            className="grid h-14 place-content-center border-t border-gray-500 text-sm"
+          >
+            {date.date()}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
