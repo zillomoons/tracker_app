@@ -1,13 +1,8 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 
-import { api } from "~/utils/api";
 import { Header } from "~/components/Header";
-import { useState } from "react";
-import { type Habit } from "@prisma/client";
-import { generateDate } from "~/utils/calendar";
+import Content from "~/components/Content";
 
 const Home: NextPage = () => {
   return (
@@ -26,99 +21,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-export const Content: React.FC = () => {
-  const { data: sessionData } = useSession();
-  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
-
-  const { data: habits, refetch: refetchHabits } = api.habit.getAll.useQuery(
-    undefined,
-    {
-      enabled: sessionData?.user !== undefined,
-      onSuccess: (data) => {
-        setSelectedHabit(selectedHabit ?? data[0] ?? null);
-      },
-    }
-  );
-  const createHabit = api.habit.create.useMutation({
-    onSuccess: () => {
-      void refetchHabits();
-    },
-  });
-  return (
-    <div className="mx-5 mt-5 grid grid-cols-4 gap-2">
-      <div className="h-screen px-2">
-        <ul className="h-1/3 rounded-md bg-gray-700 p-2 text-white">
-          {habits?.map((habit) => (
-            <li key={habit.id}>
-              <Link
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedHabit(habit);
-                }}
-              >
-                {habit.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="my-5 h-[2px] w-full rounded bg-gray-500"></div>
-        <input
-          type="text"
-          placeholder="New Habit"
-          className="w-full rounded border border-gray-500 bg-gray-700 p-1 outline-none"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              createHabit.mutate({ name: e.currentTarget.value });
-              e.currentTarget.value = "";
-            }
-          }}
-        />
-      </div>
-      <div className="col-span-3">
-        <CalendarMonth />
-      </div>
-    </div>
-  );
-};
-
-export const CalendarMonth = () => {
-  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  return (
-    <div className="mx-5 h-96 w-96">
-      <section className="calendar-month-header">
-        <div
-          id="selected-month"
-          className="calendar-month-selected-month"
-        ></div>
-        <section className="flex w-20 cursor-pointer items-center justify-between">
-          <span id="prev-month-selector">&lt;</span>
-          <span id="present-month-selector">Today</span>
-          <span id="next-month-selector">&gt;</span>
-        </section>
-      </section>
-      <ol
-        id="days-of-week"
-        className="grid grid-cols-7 pb-1 pt-3 text-sm text-gray-500"
-      >
-        {WEEKDAYS.map((day) => (
-          <li key={day} className="grid h-14 place-content-center text-sm">
-            {day}
-          </li>
-        ))}
-      </ol>
-      <ol id="calendar-days" className="grid h-full grid-cols-7">
-        {generateDate().map(({ date, currentMonth, isToday }, idx) => (
-          <li
-            key={idx}
-            className="grid h-14 place-content-center border-t border-gray-500 text-sm"
-          >
-            {date.date()}
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-};
