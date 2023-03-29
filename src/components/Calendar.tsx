@@ -3,7 +3,7 @@ import { useState } from "react";
 import { generateDate, months } from "~/utils/calendar";
 import cn from "~/utils/cn";
 
-const Calendar = () => {
+const Calendar = ({ habitName }: { habitName: string }) => {
   const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const currentDate = dayjs();
   const [today, setToday] = useState(currentDate);
@@ -11,6 +11,7 @@ const Calendar = () => {
   return (
     <div className="mx-auto flex h-screen gap-10 divide-x-2">
       <div className="mx-10 h-96 w-96">
+        <h1 className="pb-3 text-2xl">{habitName.toUpperCase()}</h1>
         <section className="flex justify-between font-semibold">
           <h1 className="">
             {months[today.month()]}, {today.year()}
@@ -56,7 +57,7 @@ const Calendar = () => {
                     currentMonth ? "" : "text-gray-400",
                     selectDate.toDate().toDateString() ===
                       date.toDate().toDateString()
-                      ? "bg-white text-black"
+                      ? "border border-gray-500"
                       : "",
                     isToday ? "bg-red-600 text-white" : "",
                     "grid h-10 w-10 cursor-pointer place-content-center rounded-full hover:bg-white hover:text-black"

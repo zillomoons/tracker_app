@@ -23,5 +23,14 @@ export const habitRouter = createTRPCRouter({
         }
       })
       return habit;
-  }),
+    }),
+  getHabitById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) => {
+    return ctx.prisma.habit.findUnique({
+      where: {
+        id: input.id
+      }
+    })
+  })
 });

@@ -1,10 +1,31 @@
+import { type Habit } from "@prisma/client";
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
+import { useState } from "react";
 
 import { Header } from "~/components/Header";
-import Content from "~/components/Content";
+import Sidebar from "~/components/Sidebar";
+import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
+  const { data: sessionData } = useSession();
+  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const { data: habits, refetch: refetchHabits } = api.habit.getAll.useQuery(
+    undefined,
+    {
+      enabled: sessionData?.user !== undefined,
+      onSuccess: (data) => {
+        setSelectedHabit(selectedHabit ?? data[0] ?? null);
+      },
+    }
+  );
+  const createHabit = api.habit.create.useMutation({
+    onSuccess: () => {
+      void refetchHabits();
+    },
+  });
   return (
     <>
       <Head>
@@ -14,7 +35,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="min-h-screen bg-gray-900 text-white">
         <Header />
-        <Content />
+        <Sidebar />
       </main>
     </>
   );
