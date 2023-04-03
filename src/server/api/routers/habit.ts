@@ -14,23 +14,16 @@ export const habitRouter = createTRPCRouter({
     })
    }),
   create: protectedProcedure
-    .input(z.object({name: z.string()}))
+    .input(z.object({name: z.string(), habitType: z.string(), habitColor: z.string().optional()}))
     .mutation(async({input, ctx}) => {
       const habit = await ctx.prisma.habit.create({
         data: {
           name: input.name,
-          userId: ctx.session.user.id
+          userId: ctx.session.user.id,
+          type: input.habitType,
+          color: input.habitColor,
         }
       })
       return habit;
     }),
-  getHabitById: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-    return ctx.prisma.habit.findUnique({
-      where: {
-        id: input.id
-      }
-    })
-  })
 });
