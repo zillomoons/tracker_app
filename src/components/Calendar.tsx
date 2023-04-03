@@ -1,10 +1,9 @@
 import dayjs from "dayjs";
 import { useState } from "react";
-import { generateDate, months } from "~/utils/calendar";
+import { generateDate, months, WEEKDAYS } from "~/utils/calendar";
 import cn from "~/utils/cn";
 
 const Calendar = ({ habitName }: { habitName: string }) => {
-  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const currentDate = dayjs();
   const [today, setToday] = useState(currentDate);
   const [selectDate, setSelectDate] = useState(currentDate);
@@ -37,7 +36,7 @@ const Calendar = ({ habitName }: { habitName: string }) => {
             </span>
           </section>
         </section>
-        <ol className="grid grid-cols-7 pb-1 pt-3 text-sm text-gray-500">
+        <ol className="text-gray-500 grid grid-cols-7 pb-1 pt-3 text-sm">
           {WEEKDAYS.map((day) => (
             <li key={day} className="grid h-14 place-content-center text-sm">
               {day}
@@ -49,7 +48,7 @@ const Calendar = ({ habitName }: { habitName: string }) => {
             ({ date, currentMonth, isToday }, idx) => (
               <li
                 key={idx}
-                className="grid h-14 place-content-center border-t border-gray-500 text-sm"
+                className="border-gray-500 grid h-14 place-content-center border-t text-sm"
               >
                 <span
                   onClick={() => setSelectDate(date)}
@@ -57,10 +56,10 @@ const Calendar = ({ habitName }: { habitName: string }) => {
                     currentMonth ? "" : "text-gray-400",
                     selectDate.toDate().toDateString() ===
                       date.toDate().toDateString()
-                      ? "border border-gray-500"
+                      ? "border-gray-500 border"
                       : "",
                     isToday ? "bg-red-600 text-white" : "",
-                    "grid h-10 w-10 cursor-pointer place-content-center rounded-full hover:bg-white hover:text-black"
+                    "hover:bg-white hover:text-black grid h-10 w-10 cursor-pointer place-content-center rounded-full"
                   )}
                 >
                   {date.date()}
@@ -74,7 +73,7 @@ const Calendar = ({ habitName }: { habitName: string }) => {
         <h1 className="font-semibold">
           Schedule for {selectDate.toDate().toDateString()}
         </h1>
-        <p className="text-sm text-gray-400">No meeting for today</p>
+        <p className="text-gray-400 text-sm">No meeting for today</p>
       </div>
     </div>
   );
