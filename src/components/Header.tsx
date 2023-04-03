@@ -6,7 +6,7 @@ export const Header = () => {
     <nav className=" bg-gray-900 px-2 py-2.5 sm:px-4">
       <div className="container mx-auto flex flex-wrap items-center justify-between">
         <span className="self-center whitespace-nowrap text-xl font-semibold text-white">
-          {sessionData?.user.name}
+          Habit Tracker
         </span>
         <div className="flex items-center md:order-2">
           <button
