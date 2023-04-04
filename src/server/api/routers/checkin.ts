@@ -16,11 +16,12 @@ export const checkinRouter = createTRPCRouter({
     })
    }),
   create: protectedProcedure
-    .input(z.object({habitId: z.string()}))
+    .input(z.object({habitId: z.string(), date: z.date()}))
     .mutation(async({ctx, input}) => {
       const checkin = await ctx.prisma.checkin.create({
         data: {
           habitId: input.habitId,
+          createdAt: input.date,
         }
       })
       return checkin;
