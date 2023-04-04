@@ -16,6 +16,12 @@ const config = {
     },
   },
   plugins: [],
+  safelist: [
+    {
+      pattern:
+        /(bg|text|border)-(turquoise|tomato|goldenPoppy|slateBlue|royalBlue|razzleRose|carrotOrange|malachite)/,
+    },
+  ],
 };
 
 module.exports = config;
