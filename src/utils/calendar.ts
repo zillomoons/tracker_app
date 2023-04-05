@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 
 const DAYS_IN_CALENDAR = 42;
 
-export const generateDate = (month = dayjs().month(), year = dayjs().year()) => {
+export function generateDate (month = dayjs().month(), year = dayjs().year()) {
   const firstDateOfMonth = dayjs().year(year).month(month).startOf('month');
   const lastDateOfMonth = dayjs().year(year).month(month).endOf('month');
   
@@ -38,6 +38,11 @@ export const generateDate = (month = dayjs().month(), year = dayjs().year()) => 
 
 
   return arrayOfDays;
+}
+
+export function generateWeekDays(month = dayjs().month(), year = dayjs().year()) {
+  const firstDayOfWeek = dayjs().year(year).month(month).startOf('week');
+  return firstDayOfWeek;
 }
 
 export const months = [
