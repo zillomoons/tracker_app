@@ -1,15 +1,10 @@
 import { type NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useState } from "react";
+import Content from "~/components/Content";
 
 import { Layout } from "~/components/shared/Layout";
-import SlideOut from "~/components/shared/SlideOut";
 
 const Home: NextPage = () => {
-  const { data: sessionData } = useSession();
-  const [open, setOpen] = useState(false);
-
   return (
     <>
       <Head>
@@ -18,22 +13,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <section className="flex justify-between px-10">
-          <h1>
-            Good morning,{" "}
-            <span className="self-center whitespace-nowrap text-xl font-semibold text-purple-500">
-              {sessionData?.user.name}
-            </span>
-          </h1>
-          <button
-            className="rounded-2xl bg-blue-400 py-2 px-8 text-sm text-white"
-            onClick={() => setOpen(true)}
-          >
-            Add Item
-          </button>
-        </section>
-
-        <SlideOut open={open} setOpen={setOpen} />
+        <Content />
       </Layout>
     </>
   );
