@@ -5,12 +5,9 @@ import { useState } from "react";
 import { type Habit } from "@prisma/client";
 import dayjs, { type Dayjs } from "dayjs";
 import cn from "~/utils/cn";
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  EllipsisVerticalIcon,
-} from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/20/solid";
+import ArrowButtons from "~/components/shared/ArrowButtons";
 
 const Sidebar = () => {
   const { data: sessionData } = useSession();
@@ -27,24 +24,11 @@ const Sidebar = () => {
     <>
       <div className="flex justify-between py-3">
         <span>{selectDate.format("ddd, MMMM D")}</span>
-        <div className="flex w-14 justify-between">
-          <button
-            onClick={() => setSelectDate(selectDate.day(selectDate.day() - 1))}
-            className="grid h-6 w-6 cursor-pointer place-content-center rounded-full border border-gray-400"
-          >
-            <ChevronLeftIcon className="h-3 w-3" />
-          </button>
-          <button
-            disabled={
-              selectDate.toDate().toDateString() ===
-              currenDate.toDate().toDateString()
-            }
-            onClick={() => setSelectDate(selectDate.day(selectDate.day() + 1))}
-            className="grid h-6 w-6 cursor-pointer place-content-center rounded-full border border-gray-400 disabled:cursor-default disabled:bg-gray-200 disabled:text-gray-400"
-          >
-            <ChevronRightIcon className="h-3 w-3" />
-          </button>
-        </div>
+        <ArrowButtons
+          currenDate={currenDate}
+          selectDate={selectDate}
+          setSelectDate={setSelectDate}
+        />
       </div>
       <ul className="flex h-5/6 flex-col gap-5 rounded border-2 border-gray-200 py-2 px-3">
         {habits?.map((habit) => (
