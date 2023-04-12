@@ -28,9 +28,10 @@ const Sidebar = () => {
           currenDate={currenDate}
           selectDate={selectDate}
           setSelectDate={setSelectDate}
+          step={1}
         />
       </div>
-      <ul className="flex h-5/6 flex-col gap-5 rounded border-2 border-gray-200 py-2 px-3">
+      <ul className="flex flex-col gap-5 rounded border-2 border-gray-200 py-2 px-3">
         {habits?.map((habit) => (
           <HabitItem key={habit.id} habit={habit} selectedDate={selectDate} />
         ))}
