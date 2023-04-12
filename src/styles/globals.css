@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*{
+  box-sizing: border-box;
+}
+
+.weekly-calendar{
+  border-spacing: 2.5rem 1rem;
+  overflow: hidden;
+  border-collapse: separate;
+}
+.habitCalendar-label{
+  padding: 0.125em 0.5em 0.125em 0;
+  width: 200px;
+  font-size: 14px;
+  color: #3d4146;
+  font-weight: 400;
+  text-align: center;
+  /* fill: #adbac7; */
+}
+
+.habitCalendar-day{
+  /* background-color: #15a413; */
+  /* background-color: #adbac7; */
+  outline: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  outline-offset: -1px;
+  shape-rendering: geometricPrecision;
+}
