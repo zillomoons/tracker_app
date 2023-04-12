@@ -40,10 +40,27 @@ export function generateDate (month = dayjs().month(), year = dayjs().year()) {
   return arrayOfDays;
 }
 
-export function generateWeekDays(month = dayjs().month(), year = dayjs().year()) {
-  const firstDayOfWeek = dayjs().year(year).month(month).startOf('week');
-  return firstDayOfWeek;
+export function generateWeekDays(firstDayOfWeek = dayjs().startOf('week')) {
+  
+  const weekDays = [];
+
+  // generate week days
+  for (let i = 0; i <= 6; i++){
+    weekDays.push({
+      date: firstDayOfWeek.add(1 + i, 'day'), 
+    })
+  }
+  return weekDays;
 }
+
+export const defineTimeOfDay = (hour: number) =>
+  hour < 7
+    ? "night"
+    : hour > 17
+    ? "evening"
+    : hour > 11
+    ? "afternoon"
+    : "morning";
 
 export const months = [
   "January", "February", "March", "April", "May", "June", "July",
