@@ -8,30 +8,23 @@ import { PlusSmallIcon } from "@heroicons/react/20/solid";
 import { Tab } from "@headlessui/react";
 import cn from "~/utils/cn";
 import ArrowButtons from "~/components/shared/ArrowButtons";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 import { generateWeekDays, WEEKDAYS } from "~/utils/calendar";
+import { defineTimeOfDay } from "~/utils/calendar";
 
 const Content: React.FC = () => {
   const { data: sessionData } = useSession();
   const [open, setOpen] = useState(false);
-  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const categories = ["Week", "Month", "Year", "All Time"];
-  const { data: habits, refetch: refetchHabits } = api.habit.getAll.useQuery(
-    undefined,
-    {
-      enabled: sessionData?.user !== undefined,
-      onSuccess: (data) => {
-        setSelectedHabit(selectedHabit ?? data[0] ?? null);
-      },
-    }
-  );
-  const currenDate = dayjs();
-  const [selectDate, setSelectDate] = useState(currenDate);
-  const checkins = ["", "", "", "", "", "", ""];
+
+  const currentDate = dayjs();
+  const currentHour = parseInt(currentDate.format("H"));
+  const timeOfDay = defineTimeOfDay(currentHour);
   return (
     <>
       <h1 className="text-2xl font-semibold">
-        Good morning,{" "}
+        Good {timeOfDay},{" "}
         <span className="self-center whitespace-nowrap text-xl font-semibold text-purple-500">
           {sessionData?.user.name}
         </span>
@@ -67,50 +60,7 @@ const Content: React.FC = () => {
         </div>
 
         <Tab.Panels>
-          <Tab.Panel>
-            <div className="flex">
-              <ArrowButtons
-                currenDate={currenDate}
-                selectDate={selectDate}
-                setSelectDate={setSelectDate}
-              />
-              {selectDate.startOf("week").toDate().toDateString()}
-              {" - "}
-              {selectDate.endOf("week").toDate().toDateString()}
-            </div>
-
-            <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-              <table className="w-full text-left text-sm text-gray-500">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
-                  <tr>
-                    <th scope="col" className="px-6 py-3"></th>
-                    {WEEKDAYS.map((day) => (
-                      <th key={day} scope="col" className="px-6 py-3">
-                        {day}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {habits?.map((habit) => (
-                    <tr key={habit.id} className="border-b bg-white">
-                      <th
-                        scope="row"
-                        className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
-                      >
-                        {habit.name}
-                      </th>
-                      {checkins.map((checkin, idx) => (
-                        <td key={idx} className=" bg-tomato">
-                          {checkin}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Tab.Panel>
+          <WeekPanel currentDate={currentDate} />
           <Tab.Panel>Content 2</Tab.Panel>
           <Tab.Panel>Content 3</Tab.Panel>
           <Tab.Panel>Content 4</Tab.Panel>
@@ -122,3 +72,98 @@ const Content: React.FC = () => {
 };
 
 export default Content;
+
+export const CheckinsRow = ({
+  habit,
+  selectDate,
+}: {
+  habit: Habit;
+  selectDate: Dayjs;
+}) => {
+  dayjs.extend(isBetween);
+  const { data: checkins } = api.checkin.getAll.useQuery({ habitId: habit.id });
+  const weekdays = generateWeekDays(selectDate.startOf("week"));
+  const filteredCheckins = checkins
+    ?.filter((checkin) =>
+      dayjs(checkin.createdAt).isBetween(
+        selectDate.startOf("w").add(1, "day"),
+        selectDate.endOf("w").add(1, "day")
+      )
+    )
+    .map(({ createdAt }) => createdAt.toDateString());
+  console.log(habit.name, filteredCheckins);
+  return (
+    <tr className="table-row h-7">
+      <td className="habitCalendar-label">{habit.name}</td>
+      {weekdays.map(({ date }, idx) => (
+        <td
+          key={idx}
+          data-date={date.toDate().toDateString()}
+          className={cn(
+            "habitCalendar-day ",
+            filteredCheckins?.includes(date.toDate().toDateString())
+              ? "bg-red-500"
+              : "bg-slate-200"
+          )}
+        ></td>
+      ))}
+    </tr>
+  );
+};
+
+export const WeekPanel = ({ currentDate }: { currentDate: Dayjs }) => {
+  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const { data: sessionData } = useSession();
+  const { data: habits } = api.habit.getAll.useQuery(undefined, {
+    enabled: sessionData?.user !== undefined,
+    onSuccess: (data) => {
+      setSelectedHabit(selectedHabit ?? data[0] ?? null);
+    },
+  });
+
+  const [selectDate, setSelectDate] = useState(currentDate);
+  return (
+    <Tab.Panel>
+      <div className="flex gap-5">
+        <ArrowButtons
+          currenDate={currentDate}
+          selectDate={selectDate}
+          setSelectDate={setSelectDate}
+          step={7}
+        />
+        <span>
+          {selectDate.startOf("week").add(1, "day").format("ddd, MMM D")}
+          {" - "}
+          {selectDate.endOf("week").add(1, "day").format("ddd, MMM D")}
+        </span>
+      </div>
+
+      <div className="relative mt-4 overflow-x-auto shadow-md sm:rounded-lg">
+        <table className="weekly-calendar table">
+          <thead className="table-header-group">
+            <tr className="table-row h-[15px]">
+              <td className="table-cell w-[29px]"></td>
+              {WEEKDAYS.map((day) => (
+                <td
+                  key={day}
+                  className="table-cell w-7 text-center text-xs font-semibold text-[#3d4146]"
+                >
+                  {day}
+                </td>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="table-row-group">
+            {habits?.map((habit) => (
+              <CheckinsRow
+                habit={habit}
+                key={habit.id}
+                selectDate={selectDate}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Tab.Panel>
+  );
+};
