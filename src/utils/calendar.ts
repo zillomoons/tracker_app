@@ -1,6 +1,15 @@
 import dayjs from "dayjs";
+import updateLocale from "dayjs/plugin/updateLocale";
 
 const DAYS_IN_CALENDAR = 42;
+
+dayjs.extend(updateLocale);
+dayjs.updateLocale("en", {
+    weekStart: 1,
+});
+
+  
+export const currentDate = dayjs();
 
 export function generateDate (month = dayjs().month(), year = dayjs().year()) {
   const firstDateOfMonth = dayjs().year(year).month(month).startOf('month');
@@ -47,7 +56,7 @@ export function generateWeekDays(firstDayOfWeek = dayjs().startOf('week')) {
   // generate week days
   for (let i = 0; i <= 6; i++){
     weekDays.push({
-      date: firstDayOfWeek.add(1 + i, 'day'), 
+      date: firstDayOfWeek.add(i, 'day'), 
     })
   }
   return weekDays;

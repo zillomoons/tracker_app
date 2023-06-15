@@ -26,4 +26,26 @@ export const habitRouter = createTRPCRouter({
       })
       return habit;
     }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.habit.delete({
+        where: {
+        id: input.id,
+      }
+    })
+    }),
+  update: protectedProcedure
+    .input(z.object({ id: z.string(), name: z.string(), habitColor: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.habit.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          name: input.name,
+          color: input.habitColor
+        }
+    })
+  })
 });
