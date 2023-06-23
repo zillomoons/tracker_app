@@ -6,6 +6,15 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  background-color: rgba(243, 244, 246, 1);
+}
+
+body{
+ height: 100%;
+}
+
 /* .sidebar__main{
   padding: 25px;
   border: 1px solid #bed1ed;
@@ -223,19 +232,18 @@
   transition: border .3s;
 } */
 
-.week__gridRow{
+ .week__gridRow{
   display: grid;
-  grid-template-columns: 180px 1fr 80px;
-  grid-template-areas: "heading grid summary";
-  height: 60px;
+  grid-template-columns: 20% 75%;
+  grid-template-areas: "heading grid";
+   height: 40px; 
   align-items: center;
+  margin: 10px;
 }
 
 .week__gridRow__heading{
   grid-area: heading;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  text-align: center;
 }
 
 .week__gridRow__main{
@@ -261,7 +269,6 @@
 
 .week__gridRow__name{
   line-height: 1.2em;
-  margin-left: 25px;
   color: #4d5560;
   width: 110px;
   white-space: nowrap;
@@ -281,14 +288,11 @@
   color: #3d4146;
   font-weight: 400;
   text-align: center;
-  /* fill: #adbac7; */
 }
 
 .habitCalendar-day{
-  /* background-color: #15a413; */
-  /* background-color: #adbac7; */
   outline: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   outline-offset: -1px;
   shape-rendering: geometricPrecision;
-}
+} 

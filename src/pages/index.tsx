@@ -1,8 +1,10 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { Content } from "~/components/content";
-
+import { signIn, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { Header } from "~/components/Header";
 import { Layout } from "~/components/shared/Layout";
+import { Content } from "~/components/content";
 
 const Home: NextPage = () => {
   return (

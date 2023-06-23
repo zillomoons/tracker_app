@@ -15,7 +15,7 @@ const config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/forms")],
   safelist: [
     {
       pattern:

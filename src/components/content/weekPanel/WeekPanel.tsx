@@ -40,7 +40,7 @@ export const WeekPanel = () => {
 
       <div>
         <div className="week__gridRow">
-          <div className="week__gridRow_heading"></div>
+          <div className="week__gridRow__heading"></div>
           <div className="week__gridRow__main">
             {WEEKDAYS.map((day, idx) => (
               <div key={idx} className="week__gridRowItem">
@@ -52,7 +52,7 @@ export const WeekPanel = () => {
         </div>
         {habits?.map((habit) => (
           <div className="week__gridRow" key={habit.id}>
-            <div className="week__gridRow_heading">
+            <div className="week__gridRow__heading">
               <span className="week__gridRow__name">{habit.name}</span>
             </div>
             <div className="week__gridRow__main">
@@ -65,7 +65,6 @@ export const WeekPanel = () => {
                 />
               ))}
             </div>
-            <div className="week__gridRow_end"></div>
           </div>
         ))}
       </div>
