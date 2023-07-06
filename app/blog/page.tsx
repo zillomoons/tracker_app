@@ -12,7 +12,7 @@ export const revalidate = 60;
 export default async function Blog() {
   return (
     <>
-      <h1>This is blog page</h1>
+      <h1>Blog posts</h1>
       <PostSearch />
       <Posts />
     </>
