@@ -5,13 +5,17 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Root from './routes/root';
 import ErrorPage from './error-page';
 import Settings from './routes/settings';
+import Index from './routes';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
     errorElement: <ErrorPage />,
-    children: [{ path: '/settings', element: <Settings /> }],
+    children: [
+      { index: true, element: <Index /> },
+      { path: '/settings', element: <Settings /> },
+    ],
   },
 ]);
 
