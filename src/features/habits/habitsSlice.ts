@@ -34,7 +34,7 @@ export const fetchHabits = (orderBy = 'created_at'): AppThunk => async(dispatch)
    }
 }
 
-export const createHabit = (title: string, frequency: number[]): AppThunk => async (dispatch, getState) => {
+export const createHabit = (title: string, frequency: number[]): AppThunk => async (_,getState) => {
   try {
     const userId = getState().profile.id;
     const { data, error } = await supabase
@@ -74,7 +74,7 @@ export const createHabit = (title: string, frequency: number[]): AppThunk => asy
 //   }
 // }
 
-export const updateHabit = (id: number, title: string): AppThunk => async (dispatch) => {
+export const updateHabit = (id: number, title: string): AppThunk => async () => {
 
   try {
     const { data, error } = await supabase
@@ -120,7 +120,7 @@ export const habitsSlice = createSlice({
   name: 'habits',
   initialState,
   reducers: {
-    habitsLoaded: (state, action: PayloadAction<Habit[]>) => {
+    habitsLoaded: (_, action: PayloadAction<Habit[]>) => {
       return action.payload;
     }
   }
