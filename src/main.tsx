@@ -6,6 +6,10 @@ import Root from './routes/root';
 import ErrorPage from './error-page';
 import Settings from './routes/settings';
 import Index from './routes';
+import { AddHabitForm } from './components/addHabit';
+import { EditHabitForm } from './components/editHabit';
+import { Provider } from 'react-redux';
+import store from './app/store';
 
 const router = createBrowserRouter([
   {
@@ -14,6 +18,8 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Index /> },
+      { path: '/add-habit', element: <AddHabitForm /> },
+      { path: '/habits/:id', element: <EditHabitForm /> },
       { path: '/settings', element: <Settings /> },
     ],
   },
@@ -21,6 +27,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
