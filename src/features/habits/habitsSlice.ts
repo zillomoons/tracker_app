@@ -1,131 +1,97 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { supabase } from '../../config/supabaseClient';
-import { AppThunk } from '../../app/store';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { supabase } from '../config/supabaseClient';
+import { AppDispatch, RootState } from '../../app/store';
+import { Checkin } from '../checkins/checkinsSlice';
 
-export type Habit = {
+type PrevHabit = {
   id: number;
   title: string;
   created_at: Date;
   userId: string;
-  frequency: number[];
+  frequency: DayOfWeek[];
+  checkins: Checkin[];
 };
 
-export type HabitsState = Habit[];
+export type Habit = Omit<PrevHabit, 'created_at'> & { createdAt: string };
 
-const initialState: HabitsState = [];
-
-export const fetchHabits = (orderBy = 'created_at'): AppThunk => async(dispatch) => {
-  try {
-    const { data, error } = await supabase
-      .from('habits')
-      .select()
-      .order(orderBy, { ascending: false });
-    
-    if (error) {
-      console.log(error);
-      //some other logic to show error 
-    }
-
-    if (data) {
-      dispatch(habitsLoaded(data as Habit[]));
-    }
-  } catch (err) {
-    // if something wrong handle it here
-   }
+export type HabitsState = {
+  habits: PrevHabit[];
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
 }
 
-export const createHabit = (title: string, frequency: number[]): AppThunk => async (_,getState) => {
-  try {
-    const userId = getState().profile.id;
-    const { data, error } = await supabase
+export type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+
+type InitHabit = {
+  title: string;
+  frequency: DayOfWeek[];
+} 
+
+const initialState: HabitsState = {
+  habits: [],
+  status: 'idle',
+  error: null
+};
+
+export const fetchHabits = createAsyncThunk<PrevHabit[], string>('habits/fetchHabits', async (orderBy?) => {
+  orderBy = orderBy || 'created_at';
+  const res = await supabase.from('habits').select().order(orderBy, { ascending: false });
+  return res.data as PrevHabit[];
+})
+
+export const createHabit = createAsyncThunk<PrevHabit[], InitHabit, {state: RootState, dispatch: AppDispatch}>('habits/addNewHabit', async ({title, frequency}, thunkApi) => {
+    const userId = thunkApi.getState().profile.id;
+    const res = await supabase
       .from('habits')
       .insert([{ title, userId, frequency }])
       .select();
-    
-    if (error) {
-      console.log(error);
-      //some other logic to show error
-    }
-    if (data) {
-      // dispatch(fetchHabits()) //action that fetches habits from server
-    }
-  } catch (err) {
-    // if something wrong handle it here
-  }
-};
+  return res.data as unknown as PrevHabit[];
+});
 
-// export const fetchHabitById = (id: number): AppThunk => async (dispatch) => {
-//   try {
-//     const { data, error } = await supabase
-//         .from('habits')
-//         .select()
-//         .eq('id', id)
-//         .single();
+export const updateHabit = createAsyncThunk<PrevHabit[], { id: number, title: string }>('habits/updateHabit', async ({ id, title }) => {
+  const res = await supabase.from('habits').update({ title }).eq('id', id).select();
+  return res.data as PrevHabit[];
+})
 
-//       if (error) {
-//         console.log(error);
-//       }
-//     if (data) {
-//       //
-//       }
-    
-//   } catch (err) {
-//     //handle error
-//   }
-// }
-
-export const updateHabit = (id: number, title: string): AppThunk => async () => {
-
-  try {
-    const { data, error } = await supabase
-        .from('habits')
-        .update({ title })
-        .eq('id', id)
-        .select();
-
-      if (error) {
-        console.log(error);
-      }
-      if (data) {
-        console.log(data);
-      // dispatch(fetchHabits()) //action that fetches habits from server
-      }
-  } catch (err) {
-    // handle error
-  }
-   
-}
-
-export const deleteHabit = (id: number): AppThunk => async(dispatch) => {
-  try {
-    console.log('delete', id);
-    
-    const { data, error } = await supabase
-        .from('habits')
-        .delete()
-        .eq('id', id)
-        .select();
-      if (error) {
-        console.log(error);
-      }
-      if (data) {
-        dispatch(fetchHabits());
-      }
-  } catch (err) {
-    // some logic to handle error
-  }
-}
+export const deleteHabit = createAsyncThunk<PrevHabit[], { id: number }>('habits/deleteHabit', async ({ id }) => {
+  const res = await supabase.from('habits').delete().eq('id', id).select();
+  return res.data as PrevHabit[];
+})
 
 export const habitsSlice = createSlice({
   name: 'habits',
   initialState,
-  reducers: {
-    habitsLoaded: (_, action: PayloadAction<Habit[]>) => {
-      return action.payload;
-    }
+  reducers: {},
+  extraReducers(builder) {
+    builder
+      .addCase(fetchHabits.pending, (state) => {
+      state.status = 'loading'
+      })
+      .addCase(fetchHabits.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.habits = action.payload
+      })
+      .addCase(fetchHabits.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message || 'Something went wrong.'
+      }).addCase(createHabit.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.habits.unshift(action.payload[0]);
+      }).addCase(updateHabit.fulfilled, (state) => {
+        state.status = 'succeeded';
+      }).addCase(deleteHabit.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.habits.findIndex(habit => habit.id === action.payload[0].id);
+        if (index > -1) {
+          state.habits.splice(index, 1)
+        }
+      })
   }
 })
 
-export const { habitsLoaded } = habitsSlice.actions;
 
 export default habitsSlice.reducer;
+
+export const selectAllHabits = (state: RootState) => state.habits.habits.map(habit => ({...habit, createdAt: new Date(habit.created_at).toDateString()}));
+
+// export const selectHabitById = (state: RootState, habitId: number) => state.habits.habits.find(habit => habit.id === habitId);

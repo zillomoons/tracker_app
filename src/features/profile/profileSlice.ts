@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { RootState } from "../../app/store";
 
 type ProfileState = {
   id: string;
@@ -19,3 +20,5 @@ const profileSlice = createSlice({
 })
 
 export default profileSlice.reducer;
+
+export const selectUser = (state: RootState) => state.profile;

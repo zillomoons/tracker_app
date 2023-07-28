@@ -1,11 +1,13 @@
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
 import habitsReducer from '../features/habits/habitsSlice';
 import profileReducer from '../features/profile/profileSlice';
+import checkinsReducer from '../features/checkins/checkinsSlice';
 
 const store = configureStore({
   reducer: {
     habits: habitsReducer,
     profile: profileReducer,
+    checkins: checkinsReducer,
   }
 });
 
