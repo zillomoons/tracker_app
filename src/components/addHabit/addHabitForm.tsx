@@ -1,34 +1,48 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useState } from 'react';
 import { useAppDispatch } from '../../app/hooks';
-import { createHabit } from '../../features/habits/habitsSlice';
+import { DayOfWeek, createHabit } from '../../features/habits/habitsSlice';
 import { useNavigate } from 'react-router-dom';
+import { WEEKDAYS } from '../../lib/calendar';
+import React from 'react';
 
 export function AddHabitForm() {
   const [title, setTitle] = useState('');
   const [formError, setFormError] = useState('');
-  const [frequency, setFrequency] = useState<number[]>([]);
+  const [frequency, setFrequency] = useState<DayOfWeek[]>([]);
+  const [addRequestStatus, setAddRequestStatus] = useState('idle');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!title || !frequency.length) {
-      setFormError('Please fill in title and weekly frequency');
-      return;
+  const canSave =
+    [title, frequency.length].every(Boolean) && addRequestStatus === 'idle';
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending');
+        await dispatch(createHabit({ title, frequency }));
+        setTitle('');
+        navigate('/');
+      } catch (err) {
+        console.error(err);
+        setFormError('Failed to add habit.');
+      } finally {
+        setAddRequestStatus('idle');
+      }
     }
-    dispatch(createHabit(title, frequency));
-    setTitle('');
-    navigate('/');
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setFrequency((prevState) => prevState.concat(+e.target.value));
+      setFrequency((prevState) =>
+        prevState.concat(e.target.value as DayOfWeek)
+      );
     } else {
       setFrequency((prevState) =>
-        prevState.filter((val) => val !== +e.target.value)
+        prevState.filter((val) => val !== e.target.value)
       );
     }
-  };
+  }, []);
   return (
     <form onSubmit={handleSubmit}>
       <label htmlFor='habitTitle'>Title: </label>
@@ -39,73 +53,28 @@ export function AddHabitForm() {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <div className='frequency'>
-        <label htmlFor='freq-mon'>
-          <input
-            id='freq-mon'
-            type='checkbox'
-            value={0}
-            onChange={handleChange}
-          />
-          Mon
-        </label>
-        <label htmlFor='freq-tue'>
-          <input
-            id='freq-tue'
-            type='checkbox'
-            value={1}
-            onChange={handleChange}
-          />
-          Tue
-        </label>
-        <label htmlFor='freq-wed'>
-          <input
-            id='freq-wed'
-            type='checkbox'
-            value={2}
-            onChange={handleChange}
-          />
-          Wed
-        </label>
-        <label htmlFor='freq-thu'>
-          <input
-            id='freq-thu'
-            type='checkbox'
-            value={3}
-            onChange={handleChange}
-          />
-          Thu
-        </label>
-        <label htmlFor='freq-fri'>
-          <input
-            id='freq-fri'
-            type='checkbox'
-            value={4}
-            onChange={handleChange}
-          />
-          Fri
-        </label>
-        <label htmlFor='freq-sat'>
-          <input
-            id='freq-sat'
-            type='checkbox'
-            value={5}
-            onChange={handleChange}
-          />
-          Sat
-        </label>
-        <label htmlFor='freq-sun'>
-          <input
-            id='freq-sun'
-            type='checkbox'
-            value={6}
-            onChange={handleChange}
-          />
-          Sun
-        </label>
-      </div>
-      <button type='submit'>Save</button>
+      <HabitFreqField handleChange={handleChange} />
+      <button type='submit' disabled={!canSave}>
+        Add Habit
+      </button>
       {formError && <p>{formError}</p>}
     </form>
   );
 }
+
+type HabitFreqProps = {
+  handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
+};
+
+export const HabitFreqField = React.memo(({ handleChange }: HabitFreqProps) => {
+  return (
+    <fieldset>
+      {WEEKDAYS.map((day, i) => (
+        <label htmlFor={day} key={i}>
+          <input id={day} type='checkbox' value={day} onChange={handleChange} />
+          {day}
+        </label>
+      ))}
+    </fieldset>
+  );
+});

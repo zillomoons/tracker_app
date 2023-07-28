@@ -7,7 +7,7 @@ export function EditHabitForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const habit = useAppSelector((state) =>
-    state.habits.find((habit) => habit.id === Number(id))
+    state.habits.habits.find((habit) => habit.id === Number(id))
   );
   const dispatch = useAppDispatch();
 
@@ -28,7 +28,7 @@ export function EditHabitForm() {
       setFormError('Please fill in title');
       return;
     }
-    dispatch(updateHabit(Number(id), title));
+    void dispatch(updateHabit({ id: Number(id), title }));
     navigate('/', { replace: true });
   };
 
