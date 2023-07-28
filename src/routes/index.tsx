@@ -6,9 +6,7 @@ export default function Index() {
   return (
     <>
       <h1>Habits</h1>
-      <button className='addHabit'>
-        <Link to='/add-habit'>Add Habit</Link>
-      </button>
+      <Link to='/add-habit'>Add Habit</Link>
       <HabitsList />
     </>
   );

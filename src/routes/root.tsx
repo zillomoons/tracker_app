@@ -5,7 +5,7 @@ export default function Root() {
   return (
     <>
       <Header />
-      <div className='container'>
+      <div className='wrapper'>
         <Outlet />
       </div>
     </>
