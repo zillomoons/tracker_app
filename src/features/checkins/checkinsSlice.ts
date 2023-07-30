@@ -75,6 +75,6 @@ export const _selectAllCheckins = (state: RootState) => state.checkins.checkins;
 export type Checkin = Omit<PrevCheckin, 'created_at'> & { createdAt: string };
 
 export const selectAllCheckins = createSelector(_selectAllCheckins, (checkins) => checkins.map(checkin => ({ ...checkin, createdAt: new Date(checkin.created_at).toDateString() })));
-export const selectCheckinsByHabitId = createSelector([selectAllCheckins, (state, habitId: number) => habitId], (checkins, habitId) => {
+export const selectCheckinsByHabitId = createSelector([selectAllCheckins, (_state, habitId: number) => habitId], (checkins, habitId) => {
   return checkins.filter(checkin => checkin.habitId === habitId)
 });

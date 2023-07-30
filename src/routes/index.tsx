@@ -16,7 +16,7 @@ export default function Index() {
   const habitStatus = useAppSelector(selectHabitStatus);
   const error = useAppSelector(selectHabitError);
   const dispatch = useAppDispatch();
-  const [orderBy, setOrderBy] = useState('created_at');
+  const [orderBy] = useState('created_at');
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
