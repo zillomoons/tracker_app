@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { supabase } from "../config/supabaseClient";
 
@@ -7,8 +7,6 @@ type PrevCheckin = {
   created_at: Date;
   habitId: number;
 }
-
-export type Checkin = Omit<PrevCheckin, 'created_at'> & { createdAt: string };
 
 type CheckinsState = {
   checkins: PrevCheckin[],
@@ -72,6 +70,11 @@ const checkinsSlice = createSlice({
 
 export default checkinsSlice.reducer;
 
-export const selectAllCheckins = (state: RootState) => state.checkins.checkins.map(checkin => ({...checkin, createdAt: new Date(checkin.created_at).toDateString()}));
+export const _selectAllCheckins = (state: RootState) => state.checkins.checkins;
 
+export type Checkin = Omit<PrevCheckin, 'created_at'> & { createdAt: string };
 
+export const selectAllCheckins = createSelector(_selectAllCheckins, (checkins) => checkins.map(checkin => ({ ...checkin, createdAt: new Date(checkin.created_at).toDateString() })));
+export const selectCheckinsByHabitId = createSelector([selectAllCheckins, (state, habitId: number) => habitId], (checkins, habitId) => {
+  return checkins.filter(checkin => checkin.habitId === habitId)
+});

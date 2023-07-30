@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import updateLocale from 'dayjs/plugin/updateLocale';
+import { DayOfWeek } from "../features/habits/habitsSlice";
 
-export const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export const WEEKDAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 

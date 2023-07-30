@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   WEEKDAYS,
   generateWeekdays,
   isDateOutOfRange,
   isFutureDate,
 } from '../lib/calendar';
-import { DayOfWeek, Habit, deleteHabit } from '../features/habits/habitsSlice';
+import { DayOfWeek, Habit } from '../features/habits/habitsSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { createPortal } from 'react-dom';
 import {
   Checkin,
   createCheckin,
   deleteCheckin,
-  selectAllCheckins,
+  selectCheckinsByHabitId,
 } from '../features/checkins/checkinsSlice';
 import cn from '../lib/cn';
-import { MdEdit, MdDelete } from 'react-icons/md';
+import { LiaTrashAltSolid, LiaEditSolid } from 'react-icons/lia';
+import { RootState } from '../app/store';
+import { EditHabitForm } from './EditHabitForm';
+import { Modal } from './Modal';
+import { DeleteHabit } from './DeleteHabit';
 
 export const Table = ({
   title,
@@ -45,33 +50,48 @@ export const Table = ({
   );
 };
 
-export const TableRow = ({ habit }: { habit: Habit }) => {
-  const dispatch = useAppDispatch();
-  const allCheckins = useAppSelector(selectAllCheckins);
-  const checkinsById = allCheckins.filter((c) => c.habitId === habit.id);
-  const weekdays = generateWeekdays();
-  const onDelete = () => {
-    void dispatch(deleteHabit({ id: habit.id }));
-  };
-  return (
-    <tr>
-      <td>
-        {habit.title}{' '}
-        <i onClick={onDelete}>
-          <MdDelete />
-        </i>
-      </td>
-      {weekdays.map(({ date }) => (
-        <TableCell
-          key={date}
-          date={date}
-          habit={habit}
-          checkins={checkinsById}
-        />
-      ))}
-    </tr>
+export const TableRow = React.memo(({ habit }: { habit: Habit }) => {
+  const checkins = useAppSelector((state: RootState) =>
+    selectCheckinsByHabitId(state, habit.id)
   );
-};
+  const weekdays = generateWeekdays();
+  const [showModal, setShowModal] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  return (
+    <>
+      {showModal &&
+        createPortal(
+          <EditHabitForm
+            id={habit.id}
+            visible={showModal}
+            onClose={() => setShowModal(false)}
+          />,
+          document.getElementById('modal')!
+        )}
+      <Modal
+        isOpened={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+      >
+        <DeleteHabit
+          id={habit.id}
+          habitName={habit.title}
+          onClose={() => setIsDeleteModalOpen(false)}
+        />
+      </Modal>
+      <tr>
+        <td className='row-title'>
+          <span>{habit.title}</span>
+          <LiaEditSolid onClick={() => setShowModal(true)} />
+          <LiaTrashAltSolid onClick={() => setIsDeleteModalOpen(true)} />
+        </td>
+        {weekdays.map(({ date }) => (
+          <TableCell key={date} date={date} habit={habit} checkins={checkins} />
+        ))}
+      </tr>
+    </>
+  );
+});
 
 export const TableCell = React.memo(
   ({
@@ -87,10 +107,10 @@ export const TableCell = React.memo(
     const checkinsDates = checkins.map(({ createdAt }) => createdAt);
     const isChecked = checkinsDates.includes(date);
     const isActive = habit.frequency.includes(date.slice(0, 3) as DayOfWeek);
-    const disabled =
-      isFutureDate(date) ||
-      !isActive ||
-      isDateOutOfRange(habit.createdAt, date);
+    const outOfReachStyle = isDateOutOfRange(habit.createdAt, date)
+      ? { display: 'none' }
+      : undefined;
+    const disabled = isFutureDate(date) || !isActive;
 
     const onClickHandle = () => {
       if (isChecked) {
@@ -109,9 +129,10 @@ export const TableCell = React.memo(
         <button
           disabled={disabled}
           onClick={onClickHandle}
+          style={outOfReachStyle}
           className={cn('checkin-cell', isChecked ? 'checked' : '')}
         >
-          <span className='hidden'>{date}</span>
+          <span className='sr-only'>{date}</span>
         </button>
       </td>
     );
