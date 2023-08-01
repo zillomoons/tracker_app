@@ -73,3 +73,12 @@ export function isFutureDate(date: string) {
 export function isDateOutOfRange(startDate: string, target: string) {
   return new Date(startDate).getTime() > new Date(target).getTime();
 }
+
+export const defineTimeOfDay = (hour: number) =>
+  hour < 7
+    ? "night"
+    : hour > 17
+    ? "evening"
+    : hour > 11
+    ? "afternoon"
+    : "morning";
