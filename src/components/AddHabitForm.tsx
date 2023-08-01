@@ -3,10 +3,10 @@ import { useAppDispatch } from '../app/hooks';
 import { HabitForm } from './HabitForm';
 
 export const AddHabitForm = ({
-  visible,
+  isVisible,
   onClose,
 }: {
-  visible: boolean;
+  isVisible: boolean;
   onClose: () => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -20,11 +20,11 @@ export const AddHabitForm = ({
   }) => {
     void dispatch(createHabit({ title, frequency }));
   };
-
+  if (!isVisible) return null;
   return (
     <HabitForm
       formTitle='Add Habit'
-      visible={visible}
+      visible={isVisible}
       onClose={onClose}
       handleSubmit={handleSubmit}
     />

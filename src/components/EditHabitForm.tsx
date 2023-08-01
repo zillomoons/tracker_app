@@ -1,17 +1,25 @@
-import { DayOfWeek, updateHabit } from '../features/habits/habitsSlice';
-import { useAppDispatch } from '../app/hooks';
+import {
+  DayOfWeek,
+  Habit,
+  selectAllHabits,
+  updateHabit,
+} from '../features/habits/habitsSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { HabitForm } from './HabitForm';
 
 export const EditHabitForm = ({
-  visible,
+  isVisible,
   onClose,
   id,
 }: {
-  visible: boolean;
+  isVisible: boolean;
   onClose: () => void;
   id: number;
 }) => {
   const dispatch = useAppDispatch();
+  const { title } = useAppSelector(selectAllHabits).find(
+    (habit) => habit.id === id
+  ) as Habit;
 
   const handleSubmit = ({
     title,
@@ -22,13 +30,14 @@ export const EditHabitForm = ({
   }) => {
     void dispatch(updateHabit({ id, title, frequency }));
   };
-
+  if (!isVisible) return null;
   return (
     <HabitForm
       formTitle='Edit Habit'
-      visible={visible}
+      visible={isVisible}
       onClose={onClose}
       handleSubmit={handleSubmit}
+      defaultTitle={title}
     />
   );
 };

@@ -14,6 +14,7 @@ type Props = {
     title: string;
     frequency: DayOfWeek[];
   }) => void;
+  defaultTitle?: string;
 };
 
 export const HabitForm = ({
@@ -21,8 +22,9 @@ export const HabitForm = ({
   visible,
   onClose,
   handleSubmit,
+  defaultTitle,
 }: Props) => {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(defaultTitle ?? '');
   const [checkModelList, setCheckModelList] = useState<DayOfWeek[]>([]);
   const bankDays = WEEKDAYS.slice(0, 5);
 
@@ -71,7 +73,7 @@ export const HabitForm = ({
       onSubmit={onSave}
       data-visible={visible}
       id='habit-form'
-      className='habit-form flex'
+      className='habit-form'
     >
       <IoCloseSharp
         aria-controls='habit-form'
@@ -81,7 +83,7 @@ export const HabitForm = ({
       />
       <h2>{formTitle}</h2>
       <fieldset>
-        <h3>1. Name this habit</h3>
+        <h5>1. Name this habit</h5>
         <input
           type='text'
           value={title}
@@ -89,62 +91,79 @@ export const HabitForm = ({
         />
       </fieldset>
       <fieldset>
-        <h3>2. Habit type</h3>
+        <h5>2. Habit type</h5>
         <input type='radio' id='todo' /> <label htmlFor='todo'>To do</label>
         <input type='radio' id='not_todo' />{' '}
-        <label htmlFor='not_todo'>To do</label>
+        <label htmlFor='not_todo'>Not to do</label>
       </fieldset>
       <fieldset>
-        <h3>3. Weekly frequency</h3>
-        {WEEKDAYS.map((day, i) => (
-          <label htmlFor={day} key={i}>
-            <input
-              id={day}
-              type='checkbox'
-              data-id={day}
-              value={day}
-              checked={checkModelList.includes(day)}
+        <h5>3. Weekly frequency</h5>
+        <div className='grid grid-col-7'>
+          {WEEKDAYS.map((day, i) => (
+            <CheckboxBtn
+              title={day}
+              key={i}
               onChange={onChangeModel}
+              isChecked={checkModelList.includes(day)}
             />
-            {day}
-          </label>
-        ))}
-        <div className='flex'>
-          <label htmlFor='checkWeekDays'>
-            <input
-              type='checkbox'
-              data-id='checkWeekDays'
-              id='checkWeekDays'
-              value='checkWeekDays'
-              onChange={onChangeModel}
-              checked={
-                bankDays.every((day) => checkModelList.includes(day)) &&
-                checkModelList.length === bankDays.length
-              }
-            />
-            Week Days
-          </label>
-          <label htmlFor='checkall'>
-            <input
-              type='checkbox'
-              data-id='checkall'
-              id='checkall'
-              value='checkall'
-              onChange={onChangeModel}
-              checked={checkModelList.length === WEEKDAYS.length}
-            />
-            Every Day
-          </label>
+          ))}
+        </div>
+        <div className='grid grid-col-2'>
+          <CheckboxBtn
+            title='Week Days'
+            dataId='checkWeekDays'
+            isChecked={
+              bankDays.every((day) => checkModelList.includes(day)) &&
+              checkModelList.length === bankDays.length
+            }
+            onChange={onChangeModel}
+          />
+          <CheckboxBtn
+            title='Every Day'
+            dataId='checkall'
+            isChecked={checkModelList.length === WEEKDAYS.length}
+            onChange={onChangeModel}
+          />
         </div>
       </fieldset>
       <fieldset className='flex'>
-        <button type='submit' disabled={!canSave}>
+        <button className='primary-btn' type='submit' disabled={!canSave}>
           Save
         </button>
-        <button type='button' onClick={onClose}>
+        <button type='button' className='secondary-btn' onClick={onClose}>
           Cancel
         </button>
       </fieldset>
     </form>
+  );
+};
+
+export const CheckboxBtn = ({
+  title,
+  isChecked,
+  onChange,
+  dataId,
+}: {
+  title: string;
+  isChecked: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  dataId?: string;
+}) => {
+  return (
+    <div className='check-button'>
+      <label htmlFor={dataId ?? title}>
+        <input
+          type='checkbox'
+          name={dataId ?? title}
+          id={dataId ?? title}
+          data-id={dataId ?? title}
+          value={dataId ?? title}
+          checked={isChecked}
+          onChange={onChange}
+          hidden
+        />
+        <span>{title}</span>
+      </label>
+    </div>
   );
 };

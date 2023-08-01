@@ -17,13 +17,13 @@ export const DeleteHabit = ({
   };
   return (
     <>
-      <h2 className='flex flex-row'>
+      <h2 className='flex'>
         <RiDeleteBin6Line />
         Delete Habit
       </h2>
       <p>Are you sure you want to delete this habit?</p>
       <p>You won't be able to see your history.</p>
-      <p className='accent text-center'>{habitName}</p>
+      <p className='accent text-center hand-script'>{habitName}</p>
       <div
         className='flex'
         style={{ justifyContent: 'space-evenly', marginTop: '1em' }}
