@@ -6,7 +6,7 @@ export const Profile = () => {
   const { username, email } = useAppSelector(selectUser);
   return (
     <>
-      <h2>Profile</h2>
+      <h3>Profile</h3>
       <div className={s.profileField}>
         <label>Photo</label>
         <input type='file' />

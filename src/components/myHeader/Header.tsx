@@ -1,21 +1,25 @@
 import { Link } from 'react-router-dom';
-import { DropDown } from '../dropdown/DropDown';
-import { useState } from 'react';
-import { PiUserCircleLight } from 'react-icons/pi';
+import { RxExit } from 'react-icons/rx';
+import { FaRegUserCircle } from 'react-icons/fa';
 
 export function Header() {
-  const [showDropDown, setShowDropDown] = useState(false);
-  const toggleDropDown = () => setShowDropDown(!showDropDown);
+  const signOut = () => console.log('sign out');
+  const userAvatar = '';
   return (
     <header>
       <div className='wrapper'>
-        <Link to='/'>Habit Tracker</Link>
-        <div className='flex flex-row'>
-          <PiUserCircleLight />
-          <DropDown
-            showDropDown={showDropDown}
-            toggleDropDown={toggleDropDown}
-          />
+        <h3 className='hand-script'>
+          <Link to='/'>Habit Tracker</Link>
+        </h3>
+        <div className='flex'>
+          <Link to='/settings'>
+            {userAvatar ? (
+              <img src={userAvatar} alt='grogu' className='user-image' />
+            ) : (
+              <FaRegUserCircle />
+            )}
+          </Link>
+          <RxExit onClick={signOut} />
         </div>
       </div>
     </header>
