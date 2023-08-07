@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { supabase } from "../config/supabaseClient";
+import { supabase } from "../../config/supabaseClient";
 
 type PrevCheckin = {
   id: number;
