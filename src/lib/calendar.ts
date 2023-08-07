@@ -11,9 +11,11 @@ const DAYS_IN_CALENDAR = 42;
 dayjs.extend(updateLocale);
 dayjs.updateLocale('en', { weekStart: 1 });
 
-export const currenDate = dayjs();
+export const currentDate = dayjs();
 
-export function generateWeekdays(firstDayOfWeek = currenDate.startOf('week')) {
+export const currDateString = currentDate.toDate().toDateString();
+
+export function generateWeekdays(firstDayOfWeek = currentDate.startOf('week')) {
   const weekdays = [];
 
   //generate week days dates
@@ -26,9 +28,9 @@ export function generateWeekdays(firstDayOfWeek = currenDate.startOf('week')) {
   return weekdays;
 }
 
-export function generateDaysOfMonth(month = currenDate.month(), year = currenDate.year()) {
-  const firstDateOfMonth = currenDate.year(year).month(month).startOf('month');
-  const lastDateOfMonth = currenDate.year(year).month(month).endOf('month');
+export function generateDaysOfMonth(month = currentDate.month(), year = currentDate.year()) {
+  const firstDateOfMonth = currentDate.year(year).month(month).startOf('month');
+  const lastDateOfMonth = currentDate.year(year).month(month).endOf('month');
 
   const arrayOfDays = [];
 
@@ -37,7 +39,7 @@ export function generateDaysOfMonth(month = currenDate.month(), year = currenDat
     arrayOfDays.push({
       currentMonth: false,
       date: firstDateOfMonth.day(i),
-      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currenDate.toDate().toDateString()
+      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currDateString
     })
   }
 
@@ -46,7 +48,7 @@ export function generateDaysOfMonth(month = currenDate.month(), year = currenDat
     arrayOfDays.push({
       currentMonth: true,
       date: firstDateOfMonth.date(i),
-      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currenDate.toDate().toDateString()
+      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currDateString
     })
   }
 
@@ -56,7 +58,7 @@ export function generateDaysOfMonth(month = currenDate.month(), year = currenDat
     arrayOfDays.push({
       currentMonth: false,
       date: lastDateOfMonth.date(i),
-      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currenDate.toDate().toDateString()
+      isToday: firstDateOfMonth.date(i).toDate().toDateString() === currDateString
     })
   }
 
