@@ -9,9 +9,9 @@ type ModalTypes = PropsWithChildren & {
 export const Modal = ({ children, isOpened, onClose }: ModalTypes) => {
   useEffect(() => {
     if (isOpened) {
-      document.body.style.overflow = 'hidden';
+      document.getElementById('root')!.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.getElementById('root')!.style.overflow = 'unset';
     }
   }, [isOpened]);
   if (!isOpened) return null;
