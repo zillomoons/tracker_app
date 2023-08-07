@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../../config/supabaseClient';
 import { AppDispatch, RootState } from '../../app/store';
 import { Checkin } from '../checkins/checkinsSlice';
 
@@ -12,10 +12,13 @@ type PrevHabit = {
   checkins: Checkin[];
 };
 
+export type StateStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
+export type StateError = string | null
+
 export type HabitsState = {
   habits: PrevHabit[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
+  status: StateStatus;
+  error: StateError;
 }
 
 export type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
