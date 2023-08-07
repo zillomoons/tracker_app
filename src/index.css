@@ -225,10 +225,10 @@ fieldset{
 
 .habit-grid-head{
   grid-area: head;
-  height: 50px;
   display: grid;
   grid-template-columns: 15ch 1.5em 1.5em;
   align-items: center;
+  padding-block: 0.5em;
 }
 
 .habit-grid-head span {
@@ -236,6 +236,9 @@ fieldset{
   overflow-wrap: break-word;
   justify-self: flex-start;
   text-transform: capitalize;
+}
+.habit-grid-head svg{
+  font-size: var(--fs-500);
 }
 
 .habit-grid-head span, .habit-grid-head svg{
@@ -267,7 +270,13 @@ fieldset{
 
 .habit-grid-end{
   grid-area: end;
-  height: 50px;
+}
+
+.list-heading span{
+  margin: 0;
+}
+.list-heading .habit-grid-head, .list-heading .habit-grid-end{
+  display: none;
 }
 
 .checkin-cell {
@@ -277,7 +286,6 @@ fieldset{
   height: 25px;
   border-radius: 50%;
   background-color: #fff;
-  outline: none;
   cursor: pointer;
   outline-color: transparent;
 }
@@ -392,7 +400,6 @@ fieldset{
 .grid{
   display: grid;
   gap: 5px;
-  margin-bottom: 0.5em;
 }
 
 .grid-col-2{
@@ -461,6 +468,7 @@ fieldset{
   header a,
   header svg {
     color: var(--clr-primary);
+    cursor: pointer;
   }
 
   .habit-grid-row{
