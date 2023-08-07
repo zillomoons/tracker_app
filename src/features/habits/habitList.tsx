@@ -1,129 +1,56 @@
-import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
-
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { RootState } from '../../app/store';
 import {
-  Checkin,
-  createCheckin,
-  deleteCheckin,
-  selectCheckinsByHabitId,
-} from '../checkins/checkinsSlice';
-import { DayOfWeek, Habit } from './habitsSlice';
-import {
-  currenDate,
-  generateWeekdays,
-  isDateOutOfRange,
-  isFutureDate,
-} from '../../lib/calendar';
-import { EditHabitForm } from '../../components/EditHabitForm';
-import { Modal } from '../../components/Modal';
-import { DeleteHabit } from '../../components/DeleteHabit';
-import { LiaEditSolid, LiaTrashAltSolid } from 'react-icons/lia';
-import cn from '../../lib/cn';
+  fetchHabits,
+  selectAllHabits,
+  selectHabitError,
+  selectHabitStatus,
+} from './habitsSlice';
+import { WEEKDAYS, currDateString } from '../../lib/calendar';
+import { HabitRow } from './habitRow';
+import { fetchCheckins } from '../checkins/checkinsSlice';
 
-export const HabitList = ({ habits }: { habits: Habit[] }) => {
+export const HabitList = () => {
+  const habits = useAppSelector(selectAllHabits);
+  const habitStatus = useAppSelector(selectHabitStatus);
+  const error = useAppSelector(selectHabitError);
+  const dispatch = useAppDispatch();
+  const [orderBy] = useState('created_at');
+
+  useEffect(() => {
+    if (habitStatus === 'idle') {
+      void dispatch(fetchHabits(orderBy));
+    }
+    if (habitStatus === 'succeeded') {
+      void dispatch(fetchCheckins());
+    }
+  }, [orderBy, dispatch, habitStatus]);
+
+  const renderWeekdays = WEEKDAYS.map((day) => {
+    const today = currDateString.slice(0, 3) === day;
+    const spanStyle = today ? 'current-day' : '';
+    return (
+      <span key={day} className={spanStyle}>
+        {day}
+      </span>
+    );
+  });
+  if (habitStatus === 'loading') {
+    return <div>Loading...</div>;
+  }
+  if (habitStatus === 'failed') {
+    return <div>{error}</div>;
+  }
   return (
     <>
+      <div className='habit-grid-row list-heading'>
+        <div className='habit-grid-head'></div>
+        <div className='habit-grid-main grid grid-col-7'>{renderWeekdays}</div>
+        <div className='habit-grid-end'></div>
+      </div>
       {habits.map((habit) => (
         <HabitRow key={habit.id} habit={habit} />
       ))}
     </>
   );
 };
-
-export const HabitRow = React.memo(({ habit }: { habit: Habit }) => {
-  const checkins = useAppSelector((state: RootState) =>
-    selectCheckinsByHabitId(state, habit.id)
-  );
-  const weekdays = generateWeekdays();
-  const [showModal, setShowModal] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  return (
-    <>
-      {createPortal(
-        <EditHabitForm
-          id={habit.id}
-          isVisible={showModal}
-          onClose={() => setShowModal(false)}
-        />,
-        document.getElementById('modal')!
-      )}
-      <Modal
-        isOpened={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-      >
-        <DeleteHabit
-          id={habit.id}
-          habitName={habit.title}
-          onClose={() => setIsDeleteModalOpen(false)}
-        />
-      </Modal>
-      <div className='habit-grid-row'>
-        <div className='habit-grid-head'>
-          <span>{habit.title}</span>
-          <LiaEditSolid onClick={() => setShowModal(true)} />
-          <LiaTrashAltSolid onClick={() => setIsDeleteModalOpen(true)} />
-        </div>
-        <div className='habit-grid-main grid grid-col-7'>
-          {weekdays.map(({ date }, i) => (
-            <HabitCell key={i} date={date} habit={habit} checkins={checkins} />
-          ))}
-        </div>
-        <div className='habit-grid-end'></div>
-      </div>
-    </>
-  );
-});
-
-export const HabitCell = React.memo(
-  ({
-    date,
-    checkins,
-    habit,
-  }: {
-    date: string;
-    habit: Habit;
-    checkins: Checkin[];
-  }) => {
-    const dispatch = useAppDispatch();
-    const checkinsDates = checkins.map(({ createdAt }) => createdAt);
-    const isChecked = checkinsDates.includes(date);
-    const isActive = habit.frequency.includes(date.slice(0, 3) as DayOfWeek);
-    const outOfReachStyle = isDateOutOfRange(habit.createdAt, date);
-
-    const disabled = isFutureDate(date) || !isActive || outOfReachStyle;
-    const checkinStyle = cn(
-      'checkin-cell',
-      isChecked ? 'checked' : outOfReachStyle ? 'out-of-reach' : ''
-    );
-    const today = currenDate.toDate().toDateString() === date && isActive;
-    const spanStyle = today ? 'current-day' : '';
-
-    const onClickHandle = () => {
-      if (isChecked) {
-        const checkinId = checkins.find(
-          (checkin) => checkin.createdAt === date
-        )?.id;
-        checkinId && void dispatch(deleteCheckin({ id: checkinId }));
-      } else {
-        void dispatch(
-          createCheckin({ habitId: habit.id, created_at: new Date(date) })
-        );
-      }
-    };
-    return (
-      <div>
-        <span className={spanStyle}>{date.slice(0, 3)}</span>
-        <button
-          data-date={date}
-          data-status={isActive}
-          disabled={disabled}
-          onClick={onClickHandle}
-          className={checkinStyle}
-        ></button>
-      </div>
-    );
-  }
-);
