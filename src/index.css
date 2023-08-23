@@ -212,7 +212,7 @@ fieldset{
 .habit-grid-row{
   display: grid;
   grid-template-areas: 
-  'head end'
+  'head head'
   'main main';
   grid-template-columns: 1fr 50px; 
   grid-template-rows: auto;
@@ -226,7 +226,7 @@ fieldset{
 .habit-grid-head{
   grid-area: head;
   display: grid;
-  grid-template-columns: 15ch 1.5em 1.5em;
+  grid-template-columns: 1fr 1.5em 1.5em;
   align-items: center;
   padding-block: 0.5em;
 }
@@ -268,9 +268,9 @@ fieldset{
   text-align: center;
 }
 
-.habit-grid-end{
+/* .habit-grid-end{
   grid-area: end;
-}
+} */
 
 .list-heading span{
   margin: 0;
@@ -291,7 +291,7 @@ fieldset{
 }
 
 .out-of-reach {
-  border: 1px solid #8e8e8e;
+  display: none;
 }
 
 .current-day{
@@ -436,8 +436,8 @@ fieldset{
   }
   .habit-grid-row{
     grid-template-areas:
-        'head main end';
-    grid-template-columns: 20ch auto 50px;
+        'head main';
+    grid-template-columns: 20ch auto;
   }
 }
 @media (min-width: 75em) {

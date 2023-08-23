@@ -19,51 +19,67 @@ import { DeleteHabit } from '../../components/DeleteHabit';
 import { Modal } from '../../components/Modal';
 import { LiaEditSolid, LiaTrashAltSolid } from 'react-icons/lia';
 import cn from '../../lib/cn';
+import dayjs, { Dayjs } from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
 
-export const HabitRow = React.memo(({ habit }: { habit: Habit }) => {
-  const checkins = useAppSelector((state: RootState) =>
-    selectCheckinsByHabitId(state, habit.id)
-  );
-  const weekdays = generateWeekdays();
-  const [showModal, setShowModal] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+dayjs.extend(isBetween);
 
-  return (
-    <>
-      {createPortal(
-        <EditHabitForm
-          id={habit.id}
-          isVisible={showModal}
-          onClose={() => setShowModal(false)}
-        />,
-        document.getElementById('modal')!
-      )}
-      <Modal
-        isOpened={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-      >
-        <DeleteHabit
-          id={habit.id}
-          habitName={habit.title}
+export const HabitRow = React.memo(
+  ({ habit, selectDate }: { habit: Habit; selectDate: Dayjs }) => {
+    const checkins = useAppSelector((state: RootState) =>
+      selectCheckinsByHabitId(state, habit.id)
+    ).filter((checkin) =>
+      dayjs(checkin.created_at).isBetween(
+        dayjs(selectDate.startOf('w')),
+        dayjs(selectDate.endOf('w')),
+        'day',
+        '[]'
+      )
+    );
+    const weekdays = generateWeekdays(selectDate.startOf('w'));
+    const [showModal, setShowModal] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    return (
+      <>
+        {createPortal(
+          <EditHabitForm
+            id={habit.id}
+            isVisible={showModal}
+            onClose={() => setShowModal(false)}
+          />,
+          document.getElementById('modal')!
+        )}
+        <Modal
+          isOpened={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
-        />
-      </Modal>
-      <div className='habit-grid-row'>
-        <div className='habit-grid-head'>
-          <span>{habit.title}</span>
-          <LiaEditSolid onClick={() => setShowModal(true)} />
-          <LiaTrashAltSolid onClick={() => setIsDeleteModalOpen(true)} />
+        >
+          <DeleteHabit
+            id={habit.id}
+            habitName={habit.title}
+            onClose={() => setIsDeleteModalOpen(false)}
+          />
+        </Modal>
+        <div className='habit-grid-row'>
+          <div className='habit-grid-head'>
+            <span>{habit.title}</span>
+            <LiaEditSolid onClick={() => setShowModal(true)} />
+            <LiaTrashAltSolid onClick={() => setIsDeleteModalOpen(true)} />
+          </div>
+          <div className='habit-grid-main grid grid-col-7'>
+            {weekdays.map(({ date }, i) => (
+              <HabitCell
+                key={i}
+                date={date}
+                habit={habit}
+                checkins={checkins}
+              />
+            ))}
+          </div>
         </div>
-        <div className='habit-grid-main grid grid-col-7'>
-          {weekdays.map(({ date }, i) => (
-            <HabitCell key={i} date={date} habit={habit} checkins={checkins} />
-          ))}
-        </div>
-        <div className='habit-grid-end'></div>
-      </div>
-    </>
-  );
-});
+      </>
+    );
+  }
+);
 
 export const HabitCell = React.memo(
   ({
@@ -80,14 +96,11 @@ export const HabitCell = React.memo(
     const isChecked = checkinsDates.includes(date);
     const isActive = habit.frequency.includes(date.slice(0, 3) as DayOfWeek);
     const outOfReachStyle = isDateOutOfRange(habit.createdAt, date);
-
     const disabled = isFutureDate(date) || !isActive || outOfReachStyle;
     const checkinStyle = cn(
       'checkin-cell',
       isChecked ? 'checked' : outOfReachStyle ? 'out-of-reach' : ''
     );
-    // const today = currDateString === date && isActive;
-    // const spanStyle = today ? 'current-day' : '';
 
     const onClickHandle = () => {
       if (isChecked) {
@@ -103,10 +116,10 @@ export const HabitCell = React.memo(
     };
     return (
       <div>
-        {/* <span className={spanStyle}>{date.slice(0, 3)}</span> */}
         <button
           data-date={date}
           data-status={isActive}
+          data-checked={isChecked}
           disabled={disabled}
           onClick={onClickHandle}
           className={checkinStyle}
